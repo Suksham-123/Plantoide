@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useEffect, useState } from 'react';
 import {
   X, User, Settings, Bell, Sprout, BarChart2,
   Camera, LogOut, ChevronRight, Leaf, Shield, LayoutDashboard, BarChart3, Package, Clock, HelpCircle
@@ -14,16 +14,21 @@ interface SidebarProps {
 // Added a safety check to menu items
 const menuItems: { icon: any, label: string, tab: 'home' | 'inventory' | 'analytics' | 'scheduler' }[] = [
   { icon: LayoutDashboard, label: 'Dashboard', tab: 'home' },
-  // { icon: BarChart3, label: 'Crop Analysis', tab: 'analytics' },
   { icon: Package, label: 'Inventory', tab: 'inventory' },
   { icon: Clock, label: 'Schedulers', tab: 'scheduler' },
 ];
 
 export function Sidebar({ isOpen, onClose, onLogout, onNavigate }: SidebarProps) {
   // Use data from LoginView localStorage keys
-  const name = localStorage.getItem('username') || 'Suksham Gupta';
-  const email = localStorage.getItem('userEmail') || 'farmer@plantoide.ai';
-  const farmName = localStorage.getItem('farmName') || 'Plantoide Research Farm';
+  const [scanCount, setScanCount] = useState(0);
+
+  useEffect(() => {
+    setScanCount(parseInt(localStorage.getItem('scan_count') ?? '0', 10));
+  }, []);
+
+  const name = localStorage.getItem('username') || '';
+  const email = localStorage.getItem('userEmail') || '';
+  const farmName = localStorage.getItem('farmName') || '';
 
   return (
     <>
@@ -111,9 +116,8 @@ export function Sidebar({ isOpen, onClose, onLogout, onNavigate }: SidebarProps)
           gap: '0.5rem',
         }}>
           {[
-            { value: '12', label: 'Scans' },
-            { value: '3', label: 'Alerts' },
-            { value: '84ac', label: 'Farm' },
+            { value: String(scanCount), label: 'Scans' },
+            { value: '0', label: 'Alerts' },
           ].map(({ value, label }) => (
             <div key={label} style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary)' }}>
