@@ -1,15 +1,15 @@
-import { Home, LayoutGrid, BarChart2, Droplets } from 'lucide-react';
+import { Home, LayoutGrid, Droplets, History } from 'lucide-react';
 
 interface BottomNavProps {
-  currentTab: 'home' | 'inventory' | 'analytics' | 'scheduler';
-  onTabChange: (tab: 'home' | 'inventory' | 'analytics' | 'scheduler') => void;
+  currentTab: 'home' | 'inventory' | 'history' | 'scheduler' | 'analytics';
+  onTabChange: (tab: 'home' | 'inventory' | 'history' | 'scheduler' | 'analytics') => void;
 }
 
 export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
   const tabs = [
     { id: 'home', icon: Home, label: 'Home' },
     { id: 'inventory', icon: LayoutGrid, label: 'Inventory' },
-    // { id: 'analytics', icon: BarChart2, label: 'Analytics' },
+    { id: 'history', icon: History, label: 'History' }, // Added History Tab
     { id: 'scheduler', icon: Droplets, label: 'Scheduler' }
   ] as const;
 

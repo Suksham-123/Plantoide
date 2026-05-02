@@ -3,7 +3,7 @@ import { TopBar } from './components/TopBar';
 import { BottomNav } from './components/BottomNav';
 import { Sidebar } from './components/Sidebar';
 import { HomeView } from './views/HomeView';
-import { AnalyticsView } from './views/AnalyticsView';
+import { ActivityLogView } from './views/ActivityLogView'; // Added Import
 import { CatalogView } from './views/CatalogView';
 import { DiagnosisView } from './views/DiagnosisView';
 import { SchedulerView } from './views/SchedulerView';
@@ -17,7 +17,7 @@ export default function App() {
   });
   
   const [showHint, setShowHint] = useState(false);
-  const [currentTab, setCurrentTab] = useState<'home' | 'inventory' | 'analytics' | 'scheduler'>('home');
+  const [currentTab, setCurrentTab] = useState<'home' | 'inventory' | 'history' | 'scheduler' | 'analytics'>('home');
   const [isDiagnosisOpen, setIsDiagnosisOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -44,9 +44,22 @@ export default function App() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', overflow: 'hidden' }}>
       <TopBar onMenuClick={() => setIsSidebarOpen(true)} />
 
-      <main style={{ flex: 1, backgroundColor: 'white', paddingBottom: '70px', overflowY: 'auto' }}>
-        {currentTab === 'home' && <HomeView onOpenDiagnosis={() => setIsDiagnosisOpen(true)} onNavigate={setCurrentTab} />}
-        {currentTab === 'analytics' && <AnalyticsView />}
+      <main style={{ 
+        flex: 1, 
+        backgroundColor: 'white', 
+        paddingBottom: '75px', // Fixed padding to ensure visibility above BottomNav
+        overflowY: 'auto' 
+      }}>
+        {currentTab === 'home' && (
+          <HomeView 
+            onOpenDiagnosis={() => setIsDiagnosisOpen(true)} 
+            onNavigate={(tab: any) => setCurrentTab(tab)} 
+          />
+        )}
+        
+        {/* Shows ActivityLog whenever 'history' OR 'analytics' is selected */}
+        {(currentTab === 'history' || currentTab === 'analytics') && <ActivityLogView />}
+        
         {currentTab === 'inventory' && <CatalogView />}
         {currentTab === 'scheduler' && <SchedulerView />}
       </main>

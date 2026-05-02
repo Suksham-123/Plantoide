@@ -10,6 +10,15 @@ import { getWeedInfo, RISK_META, type WeedInfo } from '../lib/weedDatabase';
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface DiagnosisViewProps { onClose: () => void; }
 
+
+export interface WeedHistoryEntry {
+  userId: string | null;
+  speciesName: string;
+  confidence: string;
+  status: string;
+  timestamp: string; // ISO format: YYYY-MM-DDTHH:mm:ssZ
+  location: { latitude: number; longitude: number };
+}
 /**
  * Phase machine:
  *  model_loading → live → (scan button) → scanning → frozen
@@ -403,74 +412,54 @@ export function DiagnosisView({ onClose }: DiagnosisViewProps) {
   }, []); // intentionally empty — all values come from refs
 
   // ── Scan button: freeze current frame ────────────────────────────────────
-  const handleScan = useCallback(async () => {
+  // ── Scan button: freeze current frame ────────────────────────────────────
+// ─── 5. HANDLE SCAN (Cleaned & Corrected) ──────────────────
+const handleScan = useCallback(async () => {
     if (busyRef.current || phaseRef.current !== 'live') return;
-
-    // Stop the live loop
     if (liveTimerRef.current) clearTimeout(liveTimerRef.current);
 
     busyRef.current = true;
     setPhase('scanning');
     phaseRef.current = 'scanning';
 
-    const vid  = videoRef.current!;
-    const snap = snapRef.current!;
-    snap.width  = vid.videoWidth;
+    const vid = videoRef.current;
+    const snap = snapRef.current;
+    if (!vid || !snap) {
+      busyRef.current = false;
+      return;
+    }
+
+    snap.width = vid.videoWidth;
     snap.height = vid.videoHeight;
-    snap.getContext('2d')!.drawImage(vid, 0, 0);
-
-    // Switch to frozen view immediately
-    setFrozenImg(snap.toDataURL('image/jpeg', 0.92));
-    frozenDimsRef.current = { w: snap.width, h: snap.height };
-    setPhase('frozen');
-    phaseRef.current = 'frozen';
-
-    // Clear live boxes before new scan results arrive
-    const overlay = overlayRef.current;
-    overlay?.getContext('2d')?.clearRect(0, 0, overlay.width, overlay.height);
-    setDetections([]);
-    detsRef.current = [];
+    snap.getContext('2d')?.drawImage(vid, 0, 0);
 
     try {
-      const dets = await runYOLO(snap);
-      if (!mountedRef.current) return;
+      // 1. Run the AI inference
+      const results = await runYOLO(snap); 
+      
+      setFrozenImg(snap.toDataURL('image/jpeg', 0.92));
+      setDetections(results);
+      setPhase('frozen');
+      phaseRef.current = 'frozen';
 
-      setDetections(dets);
-      detsRef.current = dets;
-
+      const overlay = overlayRef.current;
       if (overlay) {
-        paintBoxes(overlay, dets, snap.width, snap.height, 'contain');
+        overlay.getContext('2d')?.clearRect(0, 0, overlay.width, overlay.height);
+        paintBoxes(overlay, results, snap.width, snap.height, 'contain');
       }
 
-      // Persist top detection to backend
-      if (dets.length > 0) saveToBackend(dets[0]);
-
-      // Increment scan counter
-      const prev = parseInt(localStorage.getItem('scan_count') ?? '0', 10);
-      localStorage.setItem('scan_count', String(prev + 1));
-
-      // Persist identified weeds to history (max 50, newest first)
-      const identifiedDets = dets.filter(d => d.label !== 'Unidentified');
-      if (identifiedDets.length > 0) {
-        const existing: WeedHistoryEntry[] = JSON.parse(
-          localStorage.getItem('weed_history') ?? '[]'
-        );
-        const newEntries: WeedHistoryEntry[] = identifiedDets.map(d => ({
-          label: d.label,
-          rawLabel: d.rawLabel,
-          confidence: d.confidence,
-          timestamp: Date.now(),
-        }));
-        const merged = [...newEntries, ...existing].slice(0, 50);
-        localStorage.setItem('weed_history', JSON.stringify(merged));
+      // 2. TRIGGER SYNC FOR ALL RESULTS (Identified & Unidentified)
+      if (results.length > 0) {
+        results.forEach(det => {
+          saveToBackend(det); // This loops through every box found
+        });
       }
     } catch (e) {
       console.error('[Scan error]', e);
     } finally {
       busyRef.current = false;
     }
-  }, []);
-
+  }, [userId]);
   // ── Go back to live mode ──────────────────────────────────────────────────
   const goLive = useCallback(() => {
     setFrozenImg(null);
@@ -487,19 +476,45 @@ export function DiagnosisView({ onClose }: DiagnosisViewProps) {
 
   const saveToBackend = (det: Detection) => {
     navigator.geolocation.getCurrentPosition(async (pos) => {
+      // payload must match the schema seen in image_a30eff.png
+      const payload = {
+        userId: localStorage.getItem('currentUserId') || '69de1292ca72ba5e15aceale', 
+        detectedSpecies: det.label,
+        confidenceScore: det.confidence, // DB expects a number, not a string
+        location: { latitude: pos.coords.latitude, longitude: pos.coords.longitude },
+        status: "weed", 
+        timestamp: new Date().toISOString(),
+        isManuallyLabeled: false,
+        manualLabelName: ""
+      };
+
       try {
         await fetch(`${API_BASE_URL}/api/detections`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId,
-            detectedSpecies: det.rawLabel,
-            confidenceScore: det.confidence,
-            status: det.confidence >= DISPLAY_THRESHOLD ? 'weed' : 'unknown',
-            location: { latitude: pos.coords.latitude, longitude: pos.coords.longitude },
-          }),
+          body: JSON.stringify(payload)
         });
-      } catch { /* offline – skip */ }
+        
+        // Update local Field History (as seen in WhatsApp Image 2026-05-02 at 21.09.34.jpeg)
+        const historyItem: WeedHistoryEntry = {
+          userId: payload.userId,
+          speciesName: det.label,
+          confidence: (det.confidence * 100).toFixed(0),
+          status: 'Recognized',
+          timestamp: payload.timestamp,
+          location: payload.location
+        };
+
+        const existing = JSON.parse(localStorage.getItem('scanHistory') || '[]');
+        localStorage.setItem('scanHistory', JSON.stringify([historyItem, ...existing].slice(0, 30)));
+        
+        // Update home screen counter
+        const currentCount = parseInt(localStorage.getItem('scan_count') || '0');
+        localStorage.setItem('scan_count', (currentCount + 1).toString());
+
+      } catch (e) {
+        console.warn("MongoDB sync failed, saved to local history only.");
+      }
     });
   };
 
