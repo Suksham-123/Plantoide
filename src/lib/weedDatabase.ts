@@ -22,6 +22,7 @@ export interface WeedInfo {
   visualTraits: string;
   /** Emoji icon for quick visual reference */
   icon: string;
+  image: string; // URL or local path to an image of the weed
 }
 
 /** Risk level display helper */
@@ -38,6 +39,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Kena',
     scientificName: 'Saccharum spontaneum',
     riskLevel: 'high',
+    image: '/assets/weeds/kena.jpg',
     description:
       'Kena is a perennial wild cane found across tropical and subtropical regions of South Asia. It spreads aggressively via both seeds and underground rhizomes, forming dense colonies that are very difficult to eradicate once established.',
     cropImpact:
@@ -57,6 +59,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Lavhala',
     scientificName: 'Digera muricata',
     riskLevel: 'medium',
+    image: '/assets/weeds/lavhala.jpg',
     description:
       'Lavhala is a common summer annual weed prevalent in the arid and semi-arid farming regions of India. It thrives in disturbed soils and is tolerant of heat and drought.',
     cropImpact:
@@ -76,6 +79,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Lamb\'s Quarters',
     scientificName: 'Chenopodium album',
     riskLevel: 'medium',
+    image: '/assets/weeds/lambs_quarters.jpg',
     description:
       'One of the world\'s most widespread annual weeds, Lamb\'s Quarters is an extremely prolific seed producer capable of generating over 70,000 seeds per plant. It is highly adaptable and thrives in disturbed, nutrient-rich soils.',
     cropImpact:
@@ -95,6 +99,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Little Mallow',
     scientificName: 'Malva parviflora',
     riskLevel: 'medium',
+    image: '/assets/weeds/little_mallow.jpg',
     description:
       'Little Mallow is a cool-season annual or biennial weed native to the Mediterranean, now naturalised across Asia and Australia. Its taproots penetrate deeply and it can re-grow from root fragments.',
     cropImpact:
@@ -114,6 +119,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Moti Dudhi',
     scientificName: 'Euphorbia hirta',
     riskLevel: 'medium',
+    image: '/assets/weeds/moti_dudhi.jpg',
     description:
       'Moti Dudhi (Large Spurge) is a prostrate to ascending annual weed with milky latex sap that can cause skin irritation. It is common in tropical and subtropical regions of Asia.',
     cropImpact:
@@ -133,6 +139,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Obscure Morning Glory',
     scientificName: 'Ipomoea obscura',
     riskLevel: 'high',
+    image: '/assets/weeds/morning_glory.jpg',
     description:
       'A twining, climbing annual vine that wraps around crops, causing physical damage and shading. It is extremely difficult to control once infestation is established due to massive seed production and deep seed dormancy.',
     cropImpact:
@@ -152,6 +159,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Asian Pigeonwings',
     scientificName: 'Clitoria ternatea',
     riskLevel: 'low',
+    image: '/assets/weeds/pigeonwings.jpg',
     description:
       'Asian Pigeonwings is usually cultivated as an ornamental or cover crop, but when it escapes cultivation it can become a mild weed in crop margins. It fixes nitrogen and is generally considered beneficial in agroforestry systems.',
     cropImpact:
@@ -170,6 +178,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Bilayat / Vilayati Babool',
     scientificName: 'Prosopis juliflora',
     riskLevel: 'very_high',
+    image: '/assets/weeds/bilayat.jpg',
     description:
       'Bilayat is one of the most invasive exotic weeds in India, declared a noxious invasive species. Originally introduced for reforestation, it has escaped and now dominates vast areas of agricultural land and pasture.',
     cropImpact:
@@ -190,6 +199,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Choti Dudhi',
     scientificName: 'Euphorbia thymifolia',
     riskLevel: 'low',
+    image: '/assets/weeds/choti_dudhi.jpg',
     description:
       'Choti Dudhi (Small Spurge) is a tiny prostrate annual weed with minute leaves and a milky latex sap. Less problematic than Moti Dudhi due to its small size, it rarely forms dense enough stands to seriously impact crops.',
     cropImpact:
@@ -208,6 +218,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Crabgrass / Hairy Fingergrass',
     scientificName: 'Digitaria sanguinalis / D. ciliaris',
     riskLevel: 'high',
+    image: '/assets/weeds/crabgrass.jpg',
     description:
       'Digitaria species (crabgrasses) are among the most troublesome summer annual grassy weeds in cultivated fields worldwide. They produce massive quantities of seeds and spread rapidly through rooting at nodes.',
     cropImpact:
@@ -227,6 +238,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Gajar Gavat / Congress Grass',
     scientificName: 'Parthenium hysterophorus',
     riskLevel: 'very_high',
+    image: '/assets/weeds/gajar_gavat.jpg',
     description:
       'Gajar Gavat (Parthenium weed) is one of the most aggressive and harmful invasive weeds in India. Declared a noxious weed, it causes severe health hazards — contact dermatitis, asthma, and hay fever in humans and animals — in addition to massive crop losses.',
     cropImpact:
@@ -247,6 +259,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Graceful Sandmat',
     scientificName: 'Chamaesyce gracillima',
     riskLevel: 'low',
+    image: '/assets/weeds/sandmat.jpg',
     description:
       'Graceful Sandmat is a slender, delicate-looking prostrate annual spurge. It is common in sandy soils and disturbed areas but rarely causes serious crop damage at low densities.',
     cropImpact:
@@ -265,6 +278,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Sicklepod',
     scientificName: 'Senna obtusifolia',
     riskLevel: 'high',
+    image: '/assets/weeds/sicklepod.jpg',
     description:
       'Sicklepod is a robust tropical annual legume weed that is one of the worst crop weeds worldwide. Despite its leguminous nature, it competes aggressively with crops and its seeds are toxic to livestock.',
     cropImpact:
@@ -284,6 +298,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Harali / Bermuda Grass',
     scientificName: 'Cynodon dactylon',
     riskLevel: 'high',
+    image: '/assets/weeds/harali.jpg',
     description:
       'Harali (Bermuda Grass) is one of the most persistent perennial weeds in the world. Its creeping stolons and deep rhizomes make complete eradication extremely difficult. While valued as a lawn and pasture grass, it is a serious pest in crop fields.',
     cropImpact:
@@ -304,6 +319,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Dwarf Cassia',
     scientificName: 'Cassia pumila',
     riskLevel: 'medium',
+    image: '/assets/weeds/dwarf_cassia.jpg',
     description:
       'Dwarf Cassia is a small, delicate-looking but persistent annual leguminous weed. It favours sandy and dry soils and is common in dryland kharif crop fields across South Asia.',
     cropImpact:
@@ -322,6 +338,7 @@ export const WEED_DATABASE: Record<string, WeedInfo> = {
     name: 'Punarnava',
     scientificName: 'Boerhavia diffusa',
     riskLevel: 'low',
+    image: '/assets/weeds/punarnava.jpg',
     description:
       'Punarnava is a widespread tropical weed with significant medicinal value in Ayurveda. As a weed, it is a prostrate, spreading annual or perennial that colonises disturbed fertile soils. Its medicinal status means it is sometimes deliberately cultivated.',
     cropImpact:

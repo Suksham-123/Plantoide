@@ -98,15 +98,17 @@ function paintBoxes(
   }
 }
 
-// ─── Weed Info Panel ──────────────────────────────────────────────────────────
-function WeedInfoPanel({ info, det, onClose }: { info: WeedInfo; det: Detection; onClose: () => void }) {
+// 1. Changed to 'export' so ActivityLogView can use it
+// 2. Changed 'det' type to 'any' to support history scans
+export function WeedInfoPanel({ info, det, onClose }: { info: WeedInfo; det: any; onClose: () => void }) {
   const risk = RISK_META[info.riskLevel];
+
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 200,
       display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
     }}>
-      {/* backdrop */}
+      {/* Backdrop */}
       <div
         onClick={onClose}
         style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }}
@@ -119,16 +121,39 @@ function WeedInfoPanel({ info, det, onClose }: { info: WeedInfo; det: Detection;
         borderRadius: '24px 24px 0 0',
         border: '1px solid rgba(255,255,255,0.1)',
         padding: '0 0 calc(env(safe-area-inset-bottom) + 1.5rem)',
-        maxHeight: '82vh',
+        maxHeight: '85vh',
         overflowY: 'auto',
         animation: 'slideUp 0.28s cubic-bezier(0.34, 1.56, 0.64, 1)',
       }}>
+        
+        {/* ══ NEW: REAL FIELD IMAGE HEADER ══ */}
+        <div style={{ position: 'relative', width: '100%', height: '220px', overflow: 'hidden' }}>
+          <img 
+            src={info.image} // This pulls from your updated WEED_DATABASE
+            alt={info.name} 
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/400x220?text=Field+Photo+Unavailable')}
+          />
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0,
+            padding: '2rem 1.25rem 0.5rem',
+            background: 'linear-gradient(to top, #0d0d0d, transparent)',
+          }}>
+            <span style={{ 
+              backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: '0.65rem', 
+              padding: '4px 8px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.05em'
+            }}>
+              Real Field Appearance
+            </span>
+          </div>
+        </div>
+
         {/* Drag handle */}
         <div style={{ display: 'flex', justifyContent: 'center', padding: '0.75rem 0 0.5rem' }}>
           <div style={{ width: '40px', height: '4px', borderRadius: '2px', backgroundColor: 'rgba(255,255,255,0.2)' }} />
         </div>
 
-        {/* Header */}
+        {/* Header Information */}
         <div style={{ padding: '0.5rem 1.25rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
@@ -142,88 +167,66 @@ function WeedInfoPanel({ info, det, onClose }: { info: WeedInfo; det: Detection;
                 {info.scientificName}
               </p>
             </div>
-            <button
-              onClick={onClose}
-              style={{
-                width: '36px', height: '36px', borderRadius: '50%',
-                backgroundColor: 'rgba(255,255,255,0.08)',
-                border: 'none', color: '#fff', flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer',
-              }}
-            >
-              <X size={18} />
-            </button>
+            <button onClick={onClose} style={iconBtn}><X size={18} /></button>
           </div>
 
-          {/* Risk + Confidence row */}
+          {/* Risk + Confidence Row */}
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-              backgroundColor: risk.bg,
-              color: risk.color,
-              borderRadius: '100px', padding: '4px 12px',
-              fontSize: '0.72rem', fontWeight: 700,
+              backgroundColor: risk.bg, color: risk.color,
+              borderRadius: '100px', padding: '4px 12px', fontSize: '0.72rem', fontWeight: 700,
               border: `1px solid ${risk.color}40`,
             }}>
-              <Shield size={11} />
-              {risk.label}
+              <Shield size={11} /> {risk.label}
             </span>
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-              backgroundColor: 'rgba(34,197,94,0.1)',
-              color: '#22c55e',
-              borderRadius: '100px', padding: '4px 12px',
-              fontSize: '0.72rem', fontWeight: 700,
+              backgroundColor: 'rgba(34,197,94,0.1)', color: '#22c55e',
+              borderRadius: '100px', padding: '4px 12px', fontSize: '0.72rem', fontWeight: 700,
               border: '1px solid rgba(34,197,94,0.3)',
             }}>
-              <FlaskConical size={11} />
-              {(det.confidence * 100).toFixed(0)}% confidence
+              <FlaskConical size={11} /> 
+              {/* Handles both '0.85' from live and '85' from history logs */}
+              {typeof det.confidence === 'string' ? det.confidence : (det.confidence * 100).toFixed(0)}% Match
             </span>
           </div>
         </div>
 
-        {/* Body */}
+        {/* ══ THE CONTENT SECTIONS (YOUR SNIPPET) ══ */}
         <div style={{ padding: '1rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-
-          {/* Description */}
+          
           <InfoSection icon={<Info size={15} color="#7dd3fc" />} title="About this plant" color="#7dd3fc">
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', lineHeight: 1.65, margin: 0 }}>
               {info.description}
             </p>
           </InfoSection>
 
-          {/* Visual traits */}
           <InfoSection icon={<Sprout size={15} color="#86efac" />} title="Visual Identification" color="#86efac">
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', lineHeight: 1.65, margin: 0 }}>
               {info.visualTraits}
             </p>
           </InfoSection>
 
-          {/* Crop Impact */}
-          <InfoSection icon={<AlertTriangle size={15} color={RISK_META[info.riskLevel].color} />} title="Crop Impact" color={RISK_META[info.riskLevel].color}>
+          <InfoSection icon={<AlertTriangle size={15} color={risk.color} />} title="Crop Impact" color={risk.color}>
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', lineHeight: 1.65, margin: 0 }}>
               {info.cropImpact}
             </p>
           </InfoSection>
 
-          {/* Habitat */}
           <InfoSection icon={<MapPin size={15} color="#f9a8d4" />} title="Typical Habitat" color="#f9a8d4">
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', lineHeight: 1.65, margin: 0 }}>
               {info.habitat}
             </p>
           </InfoSection>
 
-          {/* Control methods */}
           <InfoSection icon={<CheckCircle2 size={15} color="#a5f3fc" />} title="Control & Management" color="#a5f3fc">
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {info.controlMethods.map((method, i) => (
                 <li key={i} style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
                   <span style={{
-                    flexShrink: 0, marginTop: '2px',
-                    width: '18px', height: '18px', borderRadius: '50%',
-                    backgroundColor: 'rgba(165,243,252,0.12)',
-                    color: '#a5f3fc', fontSize: '0.65rem', fontWeight: 700,
+                    flexShrink: 0, marginTop: '2px', width: '18px', height: '18px', borderRadius: '50%',
+                    backgroundColor: 'rgba(165,243,252,0.12)', color: '#a5f3fc', fontSize: '0.65rem', fontWeight: 700,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     {i + 1}
