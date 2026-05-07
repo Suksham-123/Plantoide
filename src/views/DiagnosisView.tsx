@@ -125,12 +125,12 @@ export function WeedInfoPanel({ info, det, onClose }: { info: WeedInfo; det: any
         overflowY: 'auto',
         animation: 'slideUp 0.28s cubic-bezier(0.34, 1.56, 0.64, 1)',
       }}>
-        
+
         {/* ══ NEW: REAL FIELD IMAGE HEADER ══ */}
         <div style={{ position: 'relative', width: '100%', height: '220px', overflow: 'hidden' }}>
-          <img 
+          <img
             src={info.image} // This pulls from your updated WEED_DATABASE
-            alt={info.name} 
+            alt={info.name}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/400x220?text=Field+Photo+Unavailable')}
           />
@@ -139,8 +139,8 @@ export function WeedInfoPanel({ info, det, onClose }: { info: WeedInfo; det: any
             padding: '2rem 1.25rem 0.5rem',
             background: 'linear-gradient(to top, #0d0d0d, transparent)',
           }}>
-            <span style={{ 
-              backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: '0.65rem', 
+            <span style={{
+              backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: '0.65rem',
               padding: '4px 8px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.05em'
             }}>
               Real Field Appearance
@@ -186,7 +186,7 @@ export function WeedInfoPanel({ info, det, onClose }: { info: WeedInfo; det: any
               borderRadius: '100px', padding: '4px 12px', fontSize: '0.72rem', fontWeight: 700,
               border: '1px solid rgba(34,197,94,0.3)',
             }}>
-              <FlaskConical size={11} /> 
+              <FlaskConical size={11} />
               {/* Handles both '0.85' from live and '85' from history logs */}
               {typeof det.confidence === 'string' ? det.confidence : (det.confidence * 100).toFixed(0)}% Match
             </span>
@@ -195,7 +195,7 @@ export function WeedInfoPanel({ info, det, onClose }: { info: WeedInfo; det: any
 
         {/* ══ THE CONTENT SECTIONS (YOUR SNIPPET) ══ */}
         <div style={{ padding: '1rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          
+
           <InfoSection icon={<Info size={15} color="#7dd3fc" />} title="About this plant" color="#7dd3fc">
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', lineHeight: 1.65, margin: 0 }}>
               {info.description}
@@ -438,8 +438,8 @@ const handleScan = useCallback(async () => {
 
     try {
       // 1. Run the AI inference
-      const results = await runYOLO(snap); 
-      
+      const results = await runYOLO(snap);
+
       setFrozenImg(snap.toDataURL('image/jpeg', 0.92));
       setDetections(results);
       setPhase('frozen');
@@ -481,11 +481,11 @@ const handleScan = useCallback(async () => {
     navigator.geolocation.getCurrentPosition(async (pos) => {
       // payload must match the schema seen in image_a30eff.png
       const payload = {
-        userId: localStorage.getItem('currentUserId') || '69de1292ca72ba5e15aceale', 
+        userId: localStorage.getItem('currentUserId') || '69de1292ca72ba5e15aceale',
         detectedSpecies: det.label,
         confidenceScore: det.confidence, // DB expects a number, not a string
         location: { latitude: pos.coords.latitude, longitude: pos.coords.longitude },
-        status: "weed", 
+        status: "weed",
         timestamp: new Date().toISOString(),
         isManuallyLabeled: false,
         manualLabelName: ""
@@ -497,7 +497,7 @@ const handleScan = useCallback(async () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        
+
         // Update local Field History (as seen in WhatsApp Image 2026-05-02 at 21.09.34.jpeg)
         const historyItem: WeedHistoryEntry = {
           userId: payload.userId,
@@ -510,7 +510,7 @@ const handleScan = useCallback(async () => {
 
         const existing = JSON.parse(localStorage.getItem('scanHistory') || '[]');
         localStorage.setItem('scanHistory', JSON.stringify([historyItem, ...existing].slice(0, 30)));
-        
+
         // Update home screen counter
         const currentCount = parseInt(localStorage.getItem('scan_count') || '0');
         localStorage.setItem('scan_count', (currentCount + 1).toString());
